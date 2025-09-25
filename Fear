@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Tracker Fear - Caveiras</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #0a0a0a;
+      color: #fff;
+      font-family: 'Trebuchet MS', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 10px;
+    }
+
+    h1 {
+      font-size: clamp(20px, 5vw, 36px);
+      margin-bottom: 10px;
+      text-shadow: 0 0 12px #ff0033;
+      text-align: center;
+    }
+
+    #message {
+      font-size: clamp(18px, 4vw, 30px);
+      font-weight: bold;
+      margin-bottom: 20px;
+      opacity: 0;
+      transition: opacity 0.6s ease-in-out;
+      text-align: center;
+    }
+
+    .visible {
+      opacity: 1;
+      animation: glow 1s infinite alternate, zoomIn 0.6s ease forwards;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 15px #ff0033; }
+      to   { text-shadow: 0 0 30px #ff3366; }
+    }
+
+    @keyframes zoomIn {
+      0%   { transform: scale(0.8); opacity: 0; }
+      70%  { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .tracker {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      justify-content: center;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .skull {
+      width: 100%;          /* fallback para iOS */
+      height: 100px;        /* garante proporção caso aspect-ratio falhe */
+      aspect-ratio: 1/1;    /* mantém quadrado em browsers modernos */
+      background: url('https://i.ibb.co/Y7M3Y2x/skull.jpg') no-repeat center;
+      background-size: contain;
+      background-color: #111; /* fallback se a imagem não carregar */
+      border-radius: 10px;
+      filter: brightness(0.3) drop-shadow(0 0 3px #222);
+      cursor: pointer;
+      transition: all 0.3s ease-in-out;
+    }
+
+    .skull.active {
+      filter: brightness(1.2) drop-shadow(0 0 20px #ff0033);
+      animation: pulse 0.8s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to   { transform: scale(1.1); }
+    }
+
+    #counter {
+      margin-top: 20px;
+      font-size: clamp(20px, 5vw, 34px);
+      font-weight: bold;
+      text-shadow: 0 0 12px #ff0033;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tracker Fear</h1>
+  <div id="message"></div>
+  <div class="tracker">
+    <div class="skull"></div>
+    <div class="skull"></div>
+    <div class="skull"></div>
+    <div class="skull"></div>
+    <div class="skull"></div>
+    <div class="skull"></div>
+    <div class="skull"></div>
+    <div class="skull"></div>
+    <div class="skull"></div>
+    <div class="skull"></div>
+    <div class="skull"></div>
+    <div class="skull"></div>
+  </div>
+  <div id="counter">Fear: 0 / 12</div>
+
+  <!-- Som Dark_Emptiness -->
+  <audio id="dark-sound" src="Dark_Emptiness.mp3"></audio>
+
+  <script>
+    const skulls = document.querySelectorAll('.skull');
+    const counter = document.getElementById('counter');
+    const message = document.getElementById('message');
+    const darkSound = document.getElementById('dark-sound');
+
+    function updateCounter() {
+      const activeCount = document.querySelectorAll('.skull.active').length;
+      counter.textContent = `Fear: ${activeCount} / 12`;
+
+      // Mensagens
+      let text = "";
+      if (activeCount >= 0 && activeCount <= 2) text = "Sua hora chegará!";
+      else if (activeCount >= 3 && activeCount <= 6) text = "Divirta-se!";
+      else if (activeCount >= 7 && activeCount <= 9) text = "Nada tema!";
+      else if (activeCount >= 10 && activeCount <= 11) text = "TPK não é opção!";
+      else if (activeCount === 12) text = "Sua hora chegou!";
+
+      if (text) {
+        if (message.textContent !== text) {
+          message.textContent = text;
+          message.classList.remove("visible");
+          void message.offsetWidth; // reinicia animação
+          message.classList.add("visible");
+        }
+      } else {
+        message.textContent = "";
+        message.classList.remove("visible");
+      }
+
+      // Efeito do contador
+      if (activeCount === 12) {
+        counter.style.color = "#ff0033";
+        counter.style.textShadow = "0 0 25px #ff0033, 0 0 50px #ff0055";
+      } else {
+        counter.style.color = "#fff";
+        counter.style.textShadow = "0 0 12px #ff0033";
+      }
+    }
+
+    skulls.forEach(skull => {
+      skull.addEventListener('click', () => {
+        skull.classList.toggle('active');
+        darkSound.currentTime = 0;  
+        darkSound.play();
+        updateCounter();
+      });
+    });
+  </script>
+</body>
+</html>
